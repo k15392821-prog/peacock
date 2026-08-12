@@ -17,6 +17,17 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Configure GitHub Pages source
+        run: |
+          cat <<'EOF' > /tmp/pages.json
+          {"source":{"branch":"gh-pages","path":"/"}}
+          EOF
+          curl -s -X PUT \
+            -H "Accept: application/vnd.github+json" \
+            -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+            https://api.github.com/repos/k15392821-prog/peacock/pages \
+            -d @/tmp/pages.json
+
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
         with:
