@@ -26,13 +26,20 @@ jobs:
           commit_message: Publish site to gh-pages
 
       - name: Configure GitHub Pages source
-        uses: actions/github-script@v7
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          script: |
-            const { owner, repo } = context.repo;
-            await github.rest.repos.createPagesSite({
-              owner,
-              repo,
-              source: { branch: 'gh-pages', path: '/' }
-            });
+        if: secrets.GH_PAT != ''
+        run: |
+          curl -sSL -X PUT \
+            -H "Accept: application/vnd.github+json" \
+            -H "Authorization: Bearer $GH_PAT" \
+            "https://api.github.com/repos/${GITHUB_REPOSITORY}/pages" \
+            -d '{"source":{"branch":"gh-pages","path":"/"}}'
+        env:
+          GH_PAT: ${{ secrets.GH_PAT }}
+
+      - name: Show GitHub Pages status
+        if: secrets.GH_PAT != ''
+        run: |
+          curl -sSL -H "Authorization: Bearer $GH_PAT" \
+            "https://api.github.com/repos/${GITHUB_REPOSITORY}/pages"
+        env:
+          GH_PAT: ${{ secrets.GH_PAT }}
