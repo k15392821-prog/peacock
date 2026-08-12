@@ -10,28 +10,29 @@ permissions:
   pages: write
 
 jobs:
-  deploy:
+  publish:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Configure GitHub Pages source
-        run: |
-          cat <<'EOF' > /tmp/pages.json
-          {"source":{"branch":"gh-pages","path":"/"}}
-          EOF
-          curl -s -X PUT \
-            -H "Accept: application/vnd.github+json" \
-            -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
-            https://api.github.com/repos/k15392821-prog/peacock/pages \
-            -d @/tmp/pages.json
-
-      - name: Deploy to GitHub Pages
+      - name: Deploy to gh-pages branch
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: .
           publish_branch: gh-pages
-          commit_message: Deploy static site from GitHub Actions
+          commit_message: Publish site to gh-pages
+
+      - name: Configure GitHub Pages source
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const { owner, repo } = context.repo;
+            await github.rest.repos.createPagesSite({
+              owner,
+              repo,
+              source: { branch: 'gh-pages', path: '/' }
+            });
