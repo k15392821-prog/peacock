@@ -1,0 +1,11 @@
+[build]
+  # Publish the repo root (index.html is at repository root)
+  publish = "."
+  # No build command for a plain static site
+  command = ""
+
+[[redirects]]
+  # Optional: serve index.html for all routes (useful for single-page apps)
+  from = "/*"
+  to = "/index.html"
+  status = 200
